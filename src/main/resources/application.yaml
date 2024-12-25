@@ -1,0 +1,8 @@
+spring:
+  application:
+    name: CodeCraft
+  profiles:
+    include: >
+      gpt
+server:
+  port: 8080

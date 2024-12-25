@@ -14,6 +14,7 @@ public class TemplateServiceImpl implements TemplateService {
 
   private final Configuration freemarkerConfig;
 
+
   @Override
   public String generateFromTemplate(String templateName, Map<String, Object> dataModel) {
     try {

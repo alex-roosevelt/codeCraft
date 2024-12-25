@@ -1,0 +1,8 @@
+hf:
+  key: ${HF_KEY:}
+  url: ${HF_URL:https://api-inference.huggingface.co/models/gpt2}
+
+gpt:
+  url: ${OPEN_AI_URL:https://api.openai.com/v1/completions}
+  secret:
+    key: ${OPEN_AI_KEY:}

@@ -1,21 +1,42 @@
 package com.codecraft.demo.service.impl;
 
+import com.codecraft.demo.service.HuggingFaceService;
 import com.codecraft.demo.service.ProjectGenerationService;
 import com.codecraft.demo.service.TemplateService;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.util.List;
 import java.util.Map;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.stereotype.Service;
 
 @Service
+@RequiredArgsConstructor
 public class ProjectGenerationServiceImpl implements ProjectGenerationService {
 
-  @Autowired
-  private TemplateService templateService;
+  private final TemplateService templateService;
+  private final HuggingFaceService huggingFaceService;
+
+  public void addGeneratedEntitiesToZip(ZipOutputStream zipOutputStream, List<Map<String, String>> entities, Object  packageName) throws IOException {
+    for (Map<String, String> entity : entities) {
+      String name = entity.get("name");
+      String fields = entity.get("fields");
+
+      // Промпт для генерации кода через ChatGPT
+      String prompt = "Create a Java entity for " + name + " with fields: " + fields + ". "
+          + "Also, create a corresponding DTO and basic CRUD service methods.";
+
+      // Генерация кода через ChatGPT
+      String generatedCode = huggingFaceService.generateCode(prompt);
+
+      // Добавление сгенерированного кода в ZIP
+      String filePath = "src/main/java/" + packageName +"/model" + name + ".java";
+      addFileToZip(zipOutputStream, filePath, generatedCode);
+    }
+  }
 
   @Override
   // Генерирует проект и возвращает его как байтовый массив
@@ -39,6 +60,11 @@ public class ProjectGenerationServiceImpl implements ProjectGenerationService {
 
     String appContent = templateService.generateFromTemplate("project/Controller.ftl", params);
     addFileToZip(zipOutputStream, "src/main/java/"+ params.get("packageName") + "/Application.java", appContent);
+
+    List<Map<String, String>> entities = (List<Map<String, String>>) params.get("entities");
+    if (entities != null) {
+      addGeneratedEntitiesToZip(zipOutputStream, entities, params.get("packageName"));
+    }
 
     // Закрываем поток архивации
     zipOutputStream.finish();
