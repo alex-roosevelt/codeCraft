@@ -9,7 +9,7 @@ To test the ZIP file generation, use the following `curl` command to send a requ
 curl --location 'http://localhost:8080/api/v1/projects/generate-zip' \
 --header 'Content-Type: application/json' \
 --data '{
-    "packageName": "com.veon.eurasia",
+    "packageName": "com.test.example",
     "appName": "App",
     "artifactId": "app",
     "entities": [
